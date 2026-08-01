@@ -16,8 +16,12 @@ import {
   CalendarDays,
   Menu,
   X,
+  LogIn,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useIsOwner } from "@/lib/useIsOwner";
+import { createClient } from "@/lib/supabase/client";
 
 const NAV = [
   { href: "#home", label: "Home", icon: Home },
@@ -36,6 +40,32 @@ const NAV = [
 
 export function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { isOwner } = useIsOwner();
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.reload();
+  }
+
+  const AuthControl = isOwner ? (
+    <button
+      type="button"
+      onClick={handleSignOut}
+      className="flex items-center gap-3 rounded px-3 py-2 text-sm text-(--color-ink-soft) transition-colors hover:bg-(--color-paper-dark) hover:text-(--color-ink)"
+    >
+      <LogOut size={16} />
+      Sign out
+    </button>
+  ) : (
+    <a
+      href="/admin/login"
+      className="flex items-center gap-3 rounded px-3 py-2 text-sm text-(--color-ink-faint) transition-colors hover:bg-(--color-paper-dark) hover:text-(--color-ink)"
+    >
+      <LogIn size={16} />
+      Owner sign in
+    </a>
+  );
 
   const NavList = (
     <nav className="flex flex-col gap-1">
@@ -61,8 +91,11 @@ export function Sidebar() {
           Hamza&apos;s Lab
         </div>
         {NavList}
-        <div className="mt-auto px-3 pt-6 font-(family-name:--font-hand) text-sm text-(--color-ink-faint)">
-          Built with ♥ and ☕
+        <div className="mt-auto flex flex-col">
+          {AuthControl}
+          <div className="px-3 pt-4 font-(family-name:--font-hand) text-sm text-(--color-ink-faint)">
+            Built with ♥ and ☕
+          </div>
         </div>
       </aside>
 
@@ -83,6 +116,7 @@ export function Sidebar() {
       {mobileOpen && (
         <div className="fixed top-[52px] right-0 left-0 z-30 border-b border-(--color-paper-line) bg-(--color-paper) px-4 pb-4 lg:hidden">
           {NavList}
+          {AuthControl}
         </div>
       )}
     </>

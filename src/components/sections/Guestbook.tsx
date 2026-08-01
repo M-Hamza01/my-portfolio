@@ -1,15 +1,111 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NotebookCard } from "@/components/scrapbook/NotebookCard";
 import { StickyNote } from "@/components/scrapbook/StickyNote";
 import { HandwrittenLabel } from "@/components/scrapbook/HandwrittenLabel";
 import { createClient } from "@/lib/supabase/client";
-import { SEED_GUESTBOOK } from "@/data/guestbookSeed";
+import { useIsOwner } from "@/lib/useIsOwner";
 
 const STICKY_COLORS = ["yellow", "pink", "blue", "green"] as const;
 
-export function Guestbook() {
+interface GuestbookProps {
+  entries: { id: string; name: string; note: string; date: string }[];
+}
+
+interface PendingEntry {
+  id: string;
+  name: string;
+  note: string;
+  created_at: string;
+  approved: boolean;
+}
+
+function ModerationPanel() {
+  const [pending, setPending] = useState<PendingEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  async function load() {
+    setLoading(true);
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("guestbook_entries")
+      .select("*")
+      .order("created_at", { ascending: false });
+    setPending((data as PendingEntry[]) ?? []);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- standard fetch-on-mount pattern
+    load();
+  }, []);
+
+  async function approve(id: string) {
+    const supabase = createClient();
+    await supabase.from("guestbook_entries").update({ approved: true }).eq("id", id);
+    setPending((prev) => prev.map((p) => (p.id === id ? { ...p, approved: true } : p)));
+  }
+
+  async function remove(id: string) {
+    const supabase = createClient();
+    await supabase.from("guestbook_entries").delete().eq("id", id);
+    setPending((prev) => prev.filter((p) => p.id !== id));
+  }
+
+  if (loading) return null;
+
+  return (
+    <NotebookCard id="guestbook-moderation" variant="grid" className="mb-8">
+      <p className="mb-3 font-(family-name:--font-mono) text-xs tracking-widest text-(--color-ink-faint) uppercase">
+        Moderation (only you can see this)
+      </p>
+      {pending.length === 0 ? (
+        <p className="text-sm text-(--color-ink-faint)">No guestbook entries yet.</p>
+      ) : (
+        <ul className="space-y-3">
+          {pending.map((entry) => (
+            <li
+              key={entry.id}
+              className="flex items-center justify-between gap-3 border-b border-(--color-paper-line) pb-2 text-sm"
+            >
+              <div>
+                <p>
+                  <span className="font-bold">{entry.name}</span>{" "}
+                  <span className="text-(--color-ink-soft)">— {entry.note}</span>
+                </p>
+                <p className="font-(family-name:--font-mono) text-[10px] text-(--color-ink-faint)">
+                  {entry.approved ? "approved" : "pending"}
+                </p>
+              </div>
+              <div className="flex shrink-0 gap-2">
+                {!entry.approved && (
+                  <button
+                    type="button"
+                    onClick={() => approve(entry.id)}
+                    className="font-(family-name:--font-mono) text-xs text-(--color-pen-blue) underline"
+                  >
+                    Approve
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => remove(entry.id)}
+                  className="font-(family-name:--font-mono) text-xs text-(--color-stamp-red) underline"
+                >
+                  Delete
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </NotebookCard>
+  );
+}
+
+export function Guestbook({ entries }: GuestbookProps) {
+  const { isOwner } = useIsOwner();
   const [name, setName] = useState("");
   const [note, setNote] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -41,9 +137,11 @@ export function Guestbook() {
         Leave a note if you like the work!
       </HandwrittenLabel>
 
+      {isOwner && <ModerationPanel />}
+
       <div className="grid gap-8 lg:grid-cols-[1fr_1fr]">
         <div className="flex flex-wrap items-start gap-5">
-          {SEED_GUESTBOOK.map((entry, i) => (
+          {entries.map((entry, i) => (
             <StickyNote
               key={entry.id}
               id={entry.id}

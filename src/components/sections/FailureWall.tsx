@@ -2,9 +2,8 @@ import { NotebookCard } from "@/components/scrapbook/NotebookCard";
 import { PolaroidCard } from "@/components/scrapbook/PolaroidCard";
 import { StickyNote } from "@/components/scrapbook/StickyNote";
 import { HandwrittenLabel } from "@/components/scrapbook/HandwrittenLabel";
-import { FAILURES } from "@/data/failures";
 
-export function FailureWall() {
+export function FailureWall({ failures }: { failures: { id: string; entry: string }[] }) {
   return (
     <section id="failure-wall" className="mx-auto max-w-5xl px-6 py-20">
       <h2 className="mb-2 font-(family-name:--font-display) text-3xl font-bold">
@@ -31,7 +30,7 @@ export function FailureWall() {
 
         <NotebookCard id="failure-list" variant="ruled" torn="bottom">
           <ul className="space-y-3">
-            {FAILURES.map((f) => (
+            {failures.map((f) => (
               <li key={f.id} className="flex items-start gap-2 text-sm text-(--color-ink-soft)">
                 <span className="mt-0.5 font-bold text-(--color-stamp-red)">✕</span>
                 {f.entry}

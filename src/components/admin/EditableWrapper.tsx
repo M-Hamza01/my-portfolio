@@ -37,7 +37,7 @@ export function EditableWrapper({
   const { isOwner } = useIsOwner();
   const [open, setOpen] = useState(false);
 
-  if (!isOwner) return <>{children}</>;
+  if (!isOwner) return mode === "add" ? null : <>{children}</>;
 
   return (
     <div className={cn("group/editable relative", className)}>

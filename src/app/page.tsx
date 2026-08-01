@@ -14,36 +14,77 @@ import { RandomFacts } from "@/components/sections/RandomFacts";
 import { Guestbook } from "@/components/sections/Guestbook";
 import { Now } from "@/components/sections/Now";
 import { PageBreak } from "@/components/scrapbook/PageBreak";
+import {
+  getTimeline,
+  getFeaturedProjects,
+  getCurrentDesk,
+  getGraveyard,
+  getIdeas,
+  getFailures,
+  getLessons,
+  getNotebookEntries,
+  getNowStatus,
+  getApprovedGuestbook,
+} from "@/lib/supabase/queries";
 
-const SECTIONS = [
-  Hero,
-  About,
-  Timeline,
-  FeaturedProjects,
-  CurrentDesk,
-  Graveyard,
-  IdeaParkingLot,
-  FailureWall,
-  LessonsLearned,
-  EngineeringNotebook,
-  Toolbox,
-  RandomFacts,
-  Guestbook,
-  Now,
-];
+export default async function Home() {
+  const [
+    timeline,
+    projects,
+    currentDesk,
+    graveyard,
+    ideas,
+    failures,
+    lessons,
+    notebookEntries,
+    nowStatus,
+    guestbookEntries,
+  ] = await Promise.all([
+    getTimeline(),
+    getFeaturedProjects(),
+    getCurrentDesk(),
+    getGraveyard(),
+    getIdeas(),
+    getFailures(),
+    getLessons(),
+    getNotebookEntries(),
+    getNowStatus(),
+    getApprovedGuestbook(),
+  ]);
 
-export default function Home() {
   return (
     <>
       <Sidebar />
       <SidebarOffset>
         <main>
-          {SECTIONS.map((Section, i) => (
-            <div key={Section.name}>
-              <Section />
-              {i < SECTIONS.length - 1 && <PageBreak />}
-            </div>
-          ))}
+          <Hero />
+          <PageBreak />
+          <About />
+          <PageBreak />
+          <Timeline nodes={timeline} />
+          <PageBreak />
+          <FeaturedProjects projects={projects} />
+          <PageBreak />
+          <CurrentDesk desk={currentDesk} />
+          <PageBreak />
+          <Graveyard items={graveyard} />
+          <PageBreak />
+          <IdeaParkingLot ideas={ideas} />
+          <PageBreak />
+          <FailureWall failures={failures} />
+          <PageBreak />
+          <LessonsLearned lessons={lessons} />
+          <PageBreak />
+          <EngineeringNotebook entries={notebookEntries} />
+          <PageBreak />
+          <Toolbox />
+          <PageBreak />
+          <RandomFacts />
+          <PageBreak />
+          <Guestbook entries={guestbookEntries} />
+          <PageBreak />
+          <Now now={nowStatus} />
+
           <footer className="mx-auto max-w-5xl px-6 pt-4 pb-16 text-center">
             <p className="font-(family-name:--font-hand) text-lg text-(--color-ink-faint)">
               This isn&apos;t a museum of finished work.
