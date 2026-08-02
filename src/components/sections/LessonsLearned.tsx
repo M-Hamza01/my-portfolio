@@ -4,6 +4,8 @@ import { useState } from "react";
 import { StickyNote } from "@/components/scrapbook/StickyNote";
 import { HandwrittenLabel } from "@/components/scrapbook/HandwrittenLabel";
 import { EditableWrapper } from "@/components/admin/EditableWrapper";
+import { FontSelect } from "@/components/admin/FontSelect";
+import { fontStyle } from "@/lib/fonts";
 import { createClient } from "@/lib/supabase/client";
 import type { LessonData } from "@/data/lessons";
 
@@ -29,6 +31,7 @@ function LessonForm({
 }) {
   const [text, setText] = useState(lesson?.text ?? "");
   const [color, setColor] = useState<LessonData["color"]>(lesson?.color ?? "yellow");
+  const [font, setFont] = useState(lesson?.font ?? "hand");
   const [busy, setBusy] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -40,20 +43,20 @@ function LessonForm({
     if (lesson) {
       const { error } = await supabase
         .from("lessons")
-        .update({ text: text.trim(), color })
+        .update({ text: text.trim(), color, font })
         .eq("id", lesson.id);
       setBusy(false);
       if (error) return setErrorMsg(error.message);
-      onSaved({ id: lesson.id, text: text.trim(), color });
+      onSaved({ id: lesson.id, text: text.trim(), color, font });
     } else {
       const { data, error } = await supabase
         .from("lessons")
-        .insert({ text: text.trim(), color, sort_order: 0 })
+        .insert({ text: text.trim(), color, font, sort_order: 0 })
         .select()
         .single();
       setBusy(false);
       if (error || !data) return setErrorMsg(error?.message ?? "Couldn't save.");
-      onSaved({ id: data.id, text: data.text, color: data.color });
+      onSaved({ id: data.id, text: data.text, color: data.color, font: data.font });
     }
     close();
   }
@@ -97,6 +100,7 @@ function LessonForm({
           ))}
         </div>
       </div>
+      <FontSelect value={font} onChange={setFont} />
       {errorMsg && <p className="text-xs text-(--color-stamp-red)">{errorMsg}</p>}
       <div className="flex items-center justify-between">
         {lesson ? (
@@ -153,7 +157,9 @@ export function LessonsLearned({ lessons: initial }: { lessons: LessonData[] }) 
             )}
           >
             <StickyNote id={lesson.id} color={lesson.color} className="w-48">
-              <p className="text-lg leading-snug">{lesson.text}</p>
+              <p className="text-lg leading-snug" style={fontStyle(lesson.font)}>
+                {lesson.text}
+              </p>
             </StickyNote>
           </EditableWrapper>
         ))}

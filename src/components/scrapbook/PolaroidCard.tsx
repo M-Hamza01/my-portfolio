@@ -13,6 +13,9 @@ interface PolaroidCardProps {
   rotate?: number;
   width?: number;
   tape?: boolean;
+  /** Set true for data: URLs (e.g. canvas doodles) — Next's image
+   *  optimizer doesn't handle those. */
+  unoptimized?: boolean;
   className?: string;
 }
 
@@ -24,6 +27,7 @@ export function PolaroidCard({
   rotate,
   width = 220,
   tape = true,
+  unoptimized = false,
   className,
 }: PolaroidCardProps) {
   const finalRotate = rotate ?? seededRotation(id, 6);
@@ -47,7 +51,14 @@ export function PolaroidCard({
         />
       )}
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-(--color-paper-dark)">
-        <Image src={src} alt={alt} fill sizes={`${width}px`} className="object-cover" />
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          sizes={`${width}px`}
+          className="object-cover"
+          unoptimized={unoptimized}
+        />
       </div>
       {caption && (
         <figcaption className="mt-2 text-center font-(family-name:--font-hand) text-sm text-(--color-ink-soft)">

@@ -24,8 +24,14 @@
 
   --font-display: var(--font-space-grotesk);
   --font-body: var(--font-inter);
-  --font-hand: var(--font-kalam);
   --font-mono: var(--font-jetbrains);
+
+  /* --font-custom-1 (Hamza's handwriting) and --font-custom-2 (Elms Sans)
+     are defined directly on <html> via next/font/local's `variable`
+     option in layout.tsx — nothing to declare here. --font-hand aliases
+     to custom-1 so the whole site's handwriting accent updates by
+     changing this one line if the font ever changes. */
+  --font-hand: var(--font-custom-1);
 }
 
 @theme inline {
@@ -47,6 +53,8 @@
   --font-body: var(--font-body);
   --font-hand: var(--font-hand);
   --font-mono: var(--font-mono);
+  --font-custom-1: var(--font-custom-1);
+  --font-custom-2: var(--font-custom-2);
 }
 
 html {

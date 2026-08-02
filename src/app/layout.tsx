@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Inter, Kalam, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
 // Display face — used sparingly for section titles, gives a
@@ -16,20 +17,29 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-// Handwriting accent — placeholder until Hamza's own font is ready.
-// Used ONLY for annotations, stamps, sticky notes, captions — never
-// for body copy or section titles.
-const kalam = Kalam({
-  variable: "--font-kalam",
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
-
 // Utility mono — dates, tags, status labels, "engineering" metadata.
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains",
   subsets: ["latin"],
   weight: ["400", "500"],
+});
+
+// Hamza's actual handwriting, digitized — the real "hand" font.
+// Registers directly as --font-custom-1 so the font picker in every
+// edit form can select it by name; also aliased to --font-hand below
+// so it becomes the site-wide handwriting accent everywhere at once.
+const hamzaHandwriting = localFont({
+  src: "../fonts/HamzasHandwriting.ttf",
+  variable: "--font-custom-1",
+  display: "swap",
+});
+
+// Elms Sans (variable weight) — second custom font, available as its
+// own picker option without being wired in as a default anywhere yet.
+const elmsSans = localFont({
+  src: "../fonts/ElmsSans-Variable.ttf",
+  variable: "--font-custom-2",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -43,13 +53,19 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // IMPORTANT: the font `variable` classes go on <html>, not <body>.
+  // globals.css defines --font-display/--font-hand/etc at :root (= <html>),
+  // referencing these next/font variables — CSS custom properties only
+  // resolve from the same element or an ancestor, never a descendant, so
+  // if these classes lived on <body> (a descendant of :root) every var()
+  // reference in :root would silently fail to resolve. This is why font
+  // changes appeared to have no effect before.
   return (
-    <html lang="en">
-      <body
-        className={`${spaceGrotesk.variable} ${inter.variable} ${kalam.variable} ${jetbrainsMono.variable} paper-grain antialiased`}
-      >
-        {children}
-      </body>
+    <html
+      lang="en"
+      className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable} ${hamzaHandwriting.variable} ${elmsSans.variable}`}
+    >
+      <body className="paper-grain antialiased">{children}</body>
     </html>
   );
 }

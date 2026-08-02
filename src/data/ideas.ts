@@ -4,6 +4,8 @@ export interface IdeaData {
   category: string;
   note: string;
   color: "yellow" | "pink" | "blue" | "green";
+  font?: string;
+  submittedBy?: string | null;
 }
 
 export const IDEAS: IdeaData[] = [
@@ -13,6 +15,7 @@ export const IDEAS: IdeaData[] = [
     category: "Productivity",
     note: "Maybe one day.",
     color: "yellow",
+    font: "hand",
   },
   {
     id: "uni-companion",
@@ -20,6 +23,7 @@ export const IDEAS: IdeaData[] = [
     category: "Education",
     note: "Needs validation.",
     color: "blue",
+    font: "hand",
   },
   {
     id: "ai-notes",
@@ -27,6 +31,7 @@ export const IDEAS: IdeaData[] = [
     category: "AI",
     note: "Not convinced yet.",
     color: "pink",
+    font: "hand",
   },
   {
     id: "offline-map-nust",
@@ -34,5 +39,6 @@ export const IDEAS: IdeaData[] = [
     category: "Utility",
     note: "Interesting.",
     color: "green",
+    font: "hand",
   },
 ];

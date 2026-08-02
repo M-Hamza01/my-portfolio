@@ -3,6 +3,7 @@ export interface NotebookEntryData {
   date: string;
   body: string;
   tag: string;
+  font?: string;
 }
 
 export const NOTEBOOK_ENTRIES: NotebookEntryData[] = [
@@ -11,17 +12,20 @@ export const NOTEBOOK_ENTRIES: NotebookEntryData[] = [
     date: "July 2, 2025",
     body: "Spent four hours fixing one animation. Found out the bug was one line. Worth it.",
     tag: "UI/UX",
+    font: "hand",
   },
   {
     id: "n2",
     date: "July 7, 2025",
     body: "Redesigned BillCheck again. Removed half the UI. Looks much better.",
     tag: "Product",
+    font: "hand",
   },
   {
     id: "n3",
     date: "July 14, 2025",
     body: "Published my first production fix. Nobody noticed. Exactly how it should be.",
     tag: "Reflection",
+    font: "hand",
   },
 ];

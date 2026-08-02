@@ -42,16 +42,11 @@ export function Hero() {
         <div className="relative flex justify-center lg:justify-end">
           <PolaroidCard
             id="hero-portrait"
-            src="/placeholder-portrait.svg"
+            src="/hamza-profile.jpeg"
             alt="Hamza"
             caption="Exploring. Building. Becoming."
             width={240}
             rotate={4}
-          />
-          <Doodle
-            name="arrow-top2"
-            width={44}
-            className="absolute -top-8 -left-12 hidden text-(--color-ink-faint) sm:block"
           />
           <Doodle
             name="sparkle"

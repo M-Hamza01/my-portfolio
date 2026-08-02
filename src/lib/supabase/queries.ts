@@ -4,7 +4,7 @@ import { FEATURED_PROJECTS, type ProjectData } from "@/data/projects";
 import { CURRENT_DESK } from "@/data/currentDesk";
 import { GRAVEYARD, type GraveyardItemData } from "@/data/graveyard";
 import { IDEAS, type IdeaData } from "@/data/ideas";
-import { FAILURES } from "@/data/failures";
+import { FAILURES, type FailureData } from "@/data/failures";
 import { LESSONS, type LessonData } from "@/data/lessons";
 import { NOTEBOOK_ENTRIES, type NotebookEntryData } from "@/data/notebookEntries";
 import { NOW } from "@/data/now";
@@ -107,6 +107,7 @@ export async function getGraveyard(): Promise<GraveyardItemData[]> {
       status: row.status,
       reason: row.reason,
       lesson: row.lesson,
+      font: row.font ?? "hand",
     }));
   } catch {
     return GRAVEYARD;
@@ -120,6 +121,7 @@ export async function getIdeas(): Promise<IdeaData[]> {
     const { data, error } = await supabase
       .from("ideas")
       .select("*")
+      .eq("approved", true)
       .order("created_at", { ascending: false });
     if (error || !data || data.length === 0) return IDEAS;
     return data.map((row, i) => ({
@@ -128,13 +130,15 @@ export async function getIdeas(): Promise<IdeaData[]> {
       category: row.category,
       note: row.note,
       color: colors[i % colors.length],
+      font: row.font ?? "hand",
+      submittedBy: row.submitted_by,
     }));
   } catch {
     return IDEAS;
   }
 }
 
-export async function getFailures(): Promise<{ id: string; entry: string }[]> {
+export async function getFailures(): Promise<FailureData[]> {
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
@@ -142,7 +146,7 @@ export async function getFailures(): Promise<{ id: string; entry: string }[]> {
       .select("*")
       .order("created_at", { ascending: false });
     if (error || !data || data.length === 0) return FAILURES;
-    return data.map((row) => ({ id: row.id, entry: row.entry }));
+    return data.map((row) => ({ id: row.id, entry: row.entry, font: row.font ?? "hand" }));
   } catch {
     return FAILURES;
   }
@@ -156,7 +160,12 @@ export async function getLessons(): Promise<LessonData[]> {
       .select("*")
       .order("sort_order", { ascending: true });
     if (error || !data || data.length === 0) return LESSONS;
-    return data.map((row) => ({ id: row.id, text: row.text, color: row.color }));
+    return data.map((row) => ({
+      id: row.id,
+      text: row.text,
+      color: row.color,
+      font: row.font ?? "hand",
+    }));
   } catch {
     return LESSONS;
   }
@@ -180,6 +189,7 @@ export async function getNotebookEntries(): Promise<NotebookEntryData[]> {
       }),
       body: row.body,
       tag: row.tag ?? "Note",
+      font: row.font ?? "hand",
     }));
   } catch {
     return NOTEBOOK_ENTRIES;
@@ -221,6 +231,7 @@ export async function getApprovedGuestbook() {
       id: row.id,
       name: row.name,
       note: row.note,
+      doodleDataUrl: row.doodle_data_url ?? undefined,
       date: new Date(row.created_at).toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",

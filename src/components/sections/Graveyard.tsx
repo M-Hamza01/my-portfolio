@@ -6,6 +6,8 @@ import { Stamp } from "@/components/scrapbook/Stamp";
 import { HandwrittenLabel } from "@/components/scrapbook/HandwrittenLabel";
 import { Doodle } from "@/components/scrapbook/Doodle";
 import { EditableWrapper } from "@/components/admin/EditableWrapper";
+import { FontSelect } from "@/components/admin/FontSelect";
+import { fontStyle } from "@/lib/fonts";
 import { createClient } from "@/lib/supabase/client";
 import type { GraveyardItemData } from "@/data/graveyard";
 
@@ -24,6 +26,7 @@ function GraveyardForm({
   const [status, setStatus] = useState<GraveyardItemData["status"]>(item?.status ?? "abandoned");
   const [reason, setReason] = useState(item?.reason ?? "");
   const [lesson, setLesson] = useState(item?.lesson ?? "");
+  const [font, setFont] = useState(item?.font ?? "hand");
   const [busy, setBusy] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -32,7 +35,7 @@ function GraveyardForm({
     setBusy(true);
     setErrorMsg(null);
     const supabase = createClient();
-    const payload = { name: name.trim(), status, reason: reason.trim(), lesson: lesson.trim() };
+    const payload = { name: name.trim(), status, reason: reason.trim(), lesson: lesson.trim(), font };
     if (item) {
       const { error } = await supabase.from("graveyard_items").update(payload).eq("id", item.id);
       setBusy(false);
@@ -46,7 +49,7 @@ function GraveyardForm({
         .single();
       setBusy(false);
       if (error || !data) return setErrorMsg(error?.message ?? "Couldn't save.");
-      onSaved({ id: data.id, name: data.name, status: data.status, reason: data.reason, lesson: data.lesson });
+      onSaved({ id: data.id, name: data.name, status: data.status, reason: data.reason, lesson: data.lesson, font: data.font });
     }
     close();
   }
@@ -112,6 +115,7 @@ function GraveyardForm({
           className="w-full resize-none border border-(--color-paper-line) bg-white p-2 text-sm outline-none focus:border-(--color-pen-blue)"
         />
       </div>
+      <FontSelect value={font} onChange={setFont} />
       {errorMsg && <p className="text-xs text-(--color-stamp-red)">{errorMsg}</p>}
       <div className="flex items-center justify-between">
         {item ? (
@@ -212,7 +216,7 @@ export function Graveyard({ items: initial }: { items: GraveyardItemData[] }) {
                 <p className="font-(family-name:--font-mono) text-[10px] tracking-widest text-(--color-ink-faint) uppercase">
                   Lesson
                 </p>
-                <p className="font-(family-name:--font-hand) text-base text-(--color-ink)">
+                <p className="font-(family-name:--font-hand) text-base text-(--color-ink)" style={fontStyle(item.font)}>
                   {item.lesson}
                 </p>
               </div>

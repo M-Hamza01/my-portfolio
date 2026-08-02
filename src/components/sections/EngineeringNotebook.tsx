@@ -4,6 +4,8 @@ import { useState } from "react";
 import { NotebookCard } from "@/components/scrapbook/NotebookCard";
 import { HandwrittenLabel } from "@/components/scrapbook/HandwrittenLabel";
 import { EditableWrapper } from "@/components/admin/EditableWrapper";
+import { FontSelect } from "@/components/admin/FontSelect";
+import { fontStyle } from "@/lib/fonts";
 import { createClient } from "@/lib/supabase/client";
 import type { NotebookEntryData } from "@/data/notebookEntries";
 
@@ -28,6 +30,7 @@ function EntryForm({
 }) {
   const [body, setBody] = useState(entry?.body ?? "");
   const [tag, setTag] = useState(entry?.tag ?? "");
+  const [font, setFont] = useState(entry?.font ?? "hand");
   const [busy, setBusy] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -39,20 +42,20 @@ function EntryForm({
     if (entry) {
       const { error } = await supabase
         .from("notebook_entries")
-        .update({ body: body.trim(), tag: tag.trim() })
+        .update({ body: body.trim(), tag: tag.trim(), font })
         .eq("id", entry.id);
       setBusy(false);
       if (error) return setErrorMsg(error.message);
-      onSaved({ ...entry, body: body.trim(), tag: tag.trim() });
+      onSaved({ ...entry, body: body.trim(), tag: tag.trim(), font });
     } else {
       const { data, error } = await supabase
         .from("notebook_entries")
-        .insert({ body: body.trim(), tag: tag.trim() })
+        .insert({ body: body.trim(), tag: tag.trim(), font })
         .select()
         .single();
       setBusy(false);
       if (error || !data) return setErrorMsg(error?.message ?? "Couldn't save.");
-      onSaved({ id: data.id, body: data.body, tag: data.tag, date: formatDate(data.entry_date) });
+      onSaved({ id: data.id, body: data.body, tag: data.tag, date: formatDate(data.entry_date), font: data.font });
     }
     close();
   }
@@ -91,6 +94,7 @@ function EntryForm({
           className="w-full border border-(--color-paper-line) bg-white p-2 text-sm outline-none focus:border-(--color-pen-blue)"
         />
       </div>
+      <FontSelect value={font} onChange={setFont} />
       {errorMsg && <p className="text-xs text-(--color-stamp-red)">{errorMsg}</p>}
       <div className="flex items-center justify-between">
         {entry ? (
@@ -158,7 +162,7 @@ export function EngineeringNotebook({ entries: initial }: { entries: NotebookEnt
               <p className="font-(family-name:--font-mono) text-xs text-(--color-ink-faint)">
                 {entry.date}
               </p>
-              <p className="flex-1 text-sm text-(--color-ink-soft)">{entry.body}</p>
+              <p className="flex-1 text-sm text-(--color-ink-soft)" style={fontStyle(entry.font)}>{entry.body}</p>
               <span className="w-fit rounded-full bg-(--color-paper-dark) px-2.5 py-0.5 font-(family-name:--font-mono) text-[10px] tracking-wide text-(--color-ink-soft) uppercase">
                 {entry.tag}
               </span>
