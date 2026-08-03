@@ -211,7 +211,7 @@ function SuggestIdeaTile({ onSubmitted }: { onSubmitted: () => void }) {
   }
 
   return (
-    <div className="w-64 border border-(--color-paper-line) bg-white p-4 shadow-sm">
+    <div className="w-64 max-w-[85vw] border border-(--color-paper-line) bg-white p-4 shadow-sm">
       <form onSubmit={handleSubmit} className="flex flex-col gap-2.5">
         <p className="mb-1 font-(family-name:--font-mono) text-[10px] tracking-widest text-(--color-ink-faint) uppercase">
           Suggest an idea

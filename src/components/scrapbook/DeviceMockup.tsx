@@ -20,7 +20,7 @@ interface DeviceMockupProps {
 // at the same visual "weight," so these are tuned to look balanced
 // side by side in a grid, not to share an identical box size.
 const SIZES = {
-  phone: { sm: "h-[150px] w-[75px]", md: "h-[224px] w-[112px]" },
+  phone: { sm: "h-[200px] w-[100px]", md: "h-[224px] w-[112px]" },
   web: { sm: "h-[120px] w-[160px]", md: "h-[180px] w-[240px]" },
   code: { sm: "h-[120px] w-[160px]", md: "h-[180px] w-[240px]" },
 };

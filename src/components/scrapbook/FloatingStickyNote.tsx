@@ -156,7 +156,7 @@ export function FloatingStickyNote({ note, isOwner, onUpdate, onDelete }: Floati
         {editing && (
           <div
             onPointerDown={(e) => e.stopPropagation()}
-            className="absolute top-full left-0 z-50 mt-2 w-56 border border-(--color-paper-line) bg-white p-3 shadow-lg"
+            className="absolute top-full left-0 z-50 mt-2 w-56 max-w-[85vw] border border-(--color-paper-line) bg-white p-3 shadow-lg"
           >
             <div className="flex flex-col gap-3">
               <textarea

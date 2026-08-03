@@ -69,7 +69,7 @@ export function EditablePolaroid({
       )}
 
       {editing && (
-        <div className="absolute top-full left-0 z-20 mt-2 w-56 border border-(--color-paper-line) bg-white p-3 shadow-lg">
+        <div className="absolute top-full left-0 z-20 mt-2 w-56 max-w-[85vw] border border-(--color-paper-line) bg-white p-3 shadow-lg">
           <CloudinaryUpload value={null} onChange={handleUploaded} label="Replace photo" />
           {saving && <p className="mt-1 text-xs text-(--color-ink-faint)">Saving…</p>}
           {errorMsg && <p className="mt-1 text-xs text-(--color-stamp-red)">{errorMsg}</p>}

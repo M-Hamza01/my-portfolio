@@ -59,6 +59,11 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
 }
 
 /* Hamza's handwriting reads better with a touch of breathing room and

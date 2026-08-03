@@ -191,7 +191,7 @@ function DoodleBoard({ entries }: { entries: GuestbookEntry[] }) {
   const remaining = entries.length - visible.length;
 
   return (
-    <div className="relative border border-(--color-paper-line) bg-(--color-paper-dark)/40 p-8">
+    <div className="relative border border-(--color-paper-line) bg-(--color-paper-dark)/40 p-4 sm:p-8">
       <div className="bg-grid pointer-events-none absolute inset-0 opacity-30" aria-hidden />
       <p className="relative mb-4 text-center font-(family-name:--font-mono) text-[10px] tracking-widest text-(--color-ink-faint) uppercase">
         {entries.length} {entries.length === 1 ? "doodle" : "doodles"} and counting
