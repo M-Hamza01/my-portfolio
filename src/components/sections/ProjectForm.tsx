@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { CloudinaryUpload } from "@/components/admin/CloudinaryUpload";
 import type { ProjectData } from "@/data/projects";
 
 function slugify(s: string) {
@@ -43,6 +44,8 @@ export function ProjectForm({
   const [summary, setSummary] = useState(project?.summary ?? "");
   const [stack, setStack] = useState(project?.stack.join(", ") ?? "");
   const [linkUrl, setLinkUrl] = useState(project?.linkUrl ?? "");
+  const [githubUrl, setGithubUrl] = useState(project?.githubUrl ?? "");
+  const [coverImageUrl, setCoverImageUrl] = useState(project?.coverImageUrl ?? "");
   const [whyBuilt, setWhyBuilt] = useState(project?.whyBuilt ?? "");
   const [problemItSolves, setProblemItSolves] = useState(project?.problemItSolves ?? "");
   const [biggestChallenge, setBiggestChallenge] = useState(project?.biggestChallenge ?? "");
@@ -66,6 +69,8 @@ export function ProjectForm({
       summary: summary.trim(),
       stack: stack.split(",").map((s) => s.trim()).filter(Boolean),
       link_url: linkUrl.trim() || null,
+      github_url: githubUrl.trim() || null,
+      cover_image_url: coverImageUrl.trim() || null,
       why_built: whyBuilt.trim(),
       problem_it_solves: problemItSolves.trim(),
       biggest_challenge: biggestChallenge.trim(),
@@ -88,6 +93,8 @@ export function ProjectForm({
         summary: payload.summary,
         stack: payload.stack,
         linkUrl: payload.link_url,
+        githubUrl: payload.github_url,
+        coverImageUrl: payload.cover_image_url,
         whyBuilt: payload.why_built,
         problemItSolves: payload.problem_it_solves,
         biggestChallenge: payload.biggest_challenge,
@@ -108,6 +115,8 @@ export function ProjectForm({
         summary: data.summary,
         stack: data.stack ?? [],
         linkUrl: data.link_url,
+        githubUrl: data.github_url,
+        coverImageUrl: data.cover_image_url,
         whyBuilt: data.why_built,
         problemItSolves: data.problem_it_solves,
         biggestChallenge: data.biggest_challenge,
@@ -136,7 +145,15 @@ export function ProjectForm({
         <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={60} className={inputClass} />
       </Field>
       <Field label="Platform">
-        <input value={platform} onChange={(e) => setPlatform(e.target.value)} maxLength={30} className={inputClass} />
+        <select value={platform} onChange={(e) => setPlatform(e.target.value)} className={inputClass}>
+          <option value="Android">Android</option>
+          <option value="iOS">iOS</option>
+          <option value="Web">Web</option>
+          <option value="Desktop">Desktop</option>
+          <option value="C++">C++</option>
+          <option value="Java">Java</option>
+          <option value="Other">Other</option>
+        </select>
       </Field>
       <Field label="Status">
         <div className="flex gap-2">
@@ -168,9 +185,23 @@ export function ProjectForm({
       <Field label="Tech stack (comma separated)">
         <input value={stack} onChange={(e) => setStack(e.target.value)} className={inputClass} />
       </Field>
-      <Field label="Link URL (optional)">
-        <input value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} className={inputClass} />
+      <Field label="Live app / details link (optional)">
+        <input
+          value={linkUrl}
+          onChange={(e) => setLinkUrl(e.target.value)}
+          placeholder="https://zivxio.vercel.app/nustone"
+          className={inputClass}
+        />
       </Field>
+      <Field label="GitHub link (optional)">
+        <input
+          value={githubUrl}
+          onChange={(e) => setGithubUrl(e.target.value)}
+          placeholder="https://github.com/yourname/project"
+          className={inputClass}
+        />
+      </Field>
+      <CloudinaryUpload value={coverImageUrl} onChange={setCoverImageUrl} label="Cover image / screenshot" />
 
       <hr className="border-(--color-paper-line)" />
       <p className="font-(family-name:--font-mono) text-[10px] tracking-widest text-(--color-ink-faint) uppercase">

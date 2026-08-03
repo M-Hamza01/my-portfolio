@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { NotebookCard } from "@/components/scrapbook/NotebookCard";
-import { PolaroidCard } from "@/components/scrapbook/PolaroidCard";
+import { EditablePolaroid } from "@/components/scrapbook/EditablePolaroid";
 import { StickyNote } from "@/components/scrapbook/StickyNote";
 import { HandwrittenLabel } from "@/components/scrapbook/HandwrittenLabel";
 import { EditableWrapper } from "@/components/admin/EditableWrapper";
@@ -104,7 +104,7 @@ function FailureForm({
   );
 }
 
-export function FailureWall({ failures: initial }: { failures: FailureData[] }) {
+export function FailureWall({ failures: initial, siteImages }: { failures: FailureData[]; siteImages: Record<string, string> }) {
   const [failures, setFailures] = useState(initial);
 
   return (
@@ -118,9 +118,10 @@ export function FailureWall({ failures: initial }: { failures: FailureData[] }) 
 
       <div className="grid items-start gap-8 sm:grid-cols-[auto_1fr]">
         <div className="flex flex-col items-center gap-4 sm:items-start">
-          <PolaroidCard
-            id="failure-photo"
-            src="/placeholder-failure.svg"
+          <EditablePolaroid
+            imageKey="failure-photo"
+            defaultSrc="/placeholder-failure.svg"
+            initialSrc={siteImages["failure-photo"]}
             alt="It's part of the process"
             caption="It's part of the process"
             width={180}

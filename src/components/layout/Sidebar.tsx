@@ -14,6 +14,7 @@ import {
   Sparkles,
   BookOpen,
   CalendarDays,
+  Mail,
   Menu,
   X,
   LogIn,
@@ -36,6 +37,7 @@ const NAV = [
   { href: "#random-facts", label: "Random Facts", icon: Sparkles },
   { href: "#guestbook", label: "Guestbook", icon: BookOpen },
   { href: "#now", label: "Now", icon: CalendarDays },
+  { href: "#contact", label: "Contact", icon: Mail },
 ];
 
 export function Sidebar() {
@@ -93,7 +95,7 @@ export function Sidebar() {
         {NavList}
         <div className="mt-auto flex flex-col">
           {AuthControl}
-          <div className="px-3 pt-4 font-(family-name:--font-hand) text-sm text-(--color-ink-faint)">
+          <div className="px-3 pt-4 font-hand text-sm text-(--color-ink-faint)">
             Built with ♥ and ☕
           </div>
         </div>

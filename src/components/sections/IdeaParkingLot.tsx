@@ -166,6 +166,7 @@ function SuggestIdeaTile({ onSubmitted }: { onSubmitted: () => void }) {
   const [category, setCategory] = useState("");
   const [note, setNote] = useState("");
   const [submittedBy, setSubmittedBy] = useState("");
+  const [font, setFont] = useState("hand");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   async function handleSubmit(e: React.FormEvent) {
@@ -179,6 +180,7 @@ function SuggestIdeaTile({ onSubmitted }: { onSubmitted: () => void }) {
         category: category.trim() || "Community",
         note: note.trim(),
         submitted_by: submittedBy.trim() || null,
+        font,
         approved: false,
       });
       if (error) throw error;
@@ -187,6 +189,7 @@ function SuggestIdeaTile({ onSubmitted }: { onSubmitted: () => void }) {
       setCategory("");
       setNote("");
       setSubmittedBy("");
+      setFont("hand");
       onSubmitted();
     } catch {
       setStatus("error");
@@ -236,6 +239,7 @@ function SuggestIdeaTile({ onSubmitted }: { onSubmitted: () => void }) {
           maxLength={140}
           className="resize-none border-b border-(--color-paper-line) bg-transparent py-1 text-sm outline-none focus:border-(--color-pen-blue)"
         />
+        <FontSelect value={font} onChange={setFont} label="Font for your note" />
         <input
           placeholder="Your name (optional)"
           value={submittedBy}
@@ -273,6 +277,7 @@ interface PendingIdea {
   note: string;
   submitted_by: string | null;
   approved: boolean;
+  font: string;
 }
 
 /** Owner-only — lists every unapproved suggestion with Approve/Delete. */
@@ -309,6 +314,7 @@ function IdeaModerationPanel({ onApprove }: { onApprove: (idea: IdeaData) => voi
       note: entry.note,
       color: COLORS[0],
       submittedBy: entry.submitted_by,
+      font: entry.font,
     });
   }
 
@@ -398,10 +404,10 @@ export function IdeaParkingLot({ ideas: initial }: { ideas: IdeaData[] }) {
             )}
           >
             <StickyNote id={idea.id} color={idea.color} className="w-52">
-              <div style={fontStyle(idea.font)}>
-                <p className="text-lg font-bold">{idea.title}</p>
-                <p className="mt-2 text-sm opacity-80">{idea.note}</p>
-              </div>
+              <p className="font-(family-name:--font-body) text-lg font-bold">{idea.title}</p>
+              <p className="mt-2 text-sm opacity-80" style={fontStyle(idea.font)}>
+                {idea.note}
+              </p>
               <p className="mt-3 font-(family-name:--font-mono) text-[10px] tracking-widest uppercase opacity-60">
                 {idea.category}
                 {idea.submittedBy ? ` · from ${idea.submittedBy}` : ""}

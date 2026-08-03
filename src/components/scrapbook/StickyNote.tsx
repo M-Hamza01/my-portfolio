@@ -80,7 +80,7 @@ export function StickyNote({
           clipPath: "polygon(100% 0%, 0% 100%, 100% 100%)",
         }}
       />
-      <div className="font-(family-name:--font-hand) leading-snug text-(--color-ink)">
+      <div className="font-hand leading-snug text-(--color-ink)">
         {children}
       </div>
     </motion.div>

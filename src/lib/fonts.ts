@@ -27,5 +27,14 @@ export const DEFAULT_FONT_ID = "hand";
 
 export function fontStyle(id?: string | null): CSSProperties {
   const opt = FONT_OPTIONS.find((f) => f.id === id) ?? FONT_OPTIONS[0];
-  return { fontFamily: `var(${opt.cssVar})` };
+  // Hamza's handwriting (both the "hand" alias and its underlying
+  // "custom-1" font) reads better with a slight lean and extra
+  // breathing room between characters — matches the .font-hand utility
+  // in globals.css for content that can't use a Tailwind class (e.g.
+  // font choice stored per-row in the database).
+  const isHandwriting = opt.id === "hand" || opt.id === "custom-1";
+  return {
+    fontFamily: `var(${opt.cssVar})`,
+    ...(isHandwriting ? { fontStyle: "italic", letterSpacing: "0.02em" } : {}),
+  };
 }

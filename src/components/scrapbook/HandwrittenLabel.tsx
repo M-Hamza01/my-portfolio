@@ -31,7 +31,7 @@ export function HandwrittenLabel({
   return (
     <Tag
       className={cn(
-        "font-(family-name:--font-hand) leading-snug",
+        "font-hand leading-snug",
         sizeMap[size],
         colorMap[color],
         className

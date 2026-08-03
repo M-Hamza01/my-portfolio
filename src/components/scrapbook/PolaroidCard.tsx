@@ -61,7 +61,7 @@ export function PolaroidCard({
         />
       </div>
       {caption && (
-        <figcaption className="mt-2 text-center font-(family-name:--font-hand) text-sm text-(--color-ink-soft)">
+        <figcaption className="mt-2 text-center font-hand text-sm text-(--color-ink-soft)">
           {caption}
         </figcaption>
       )}

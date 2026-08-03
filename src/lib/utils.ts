@@ -19,3 +19,10 @@ export function seededRotation(seed: string, range = 4): number {
   const normalized = (hash % 1000) / 1000; // -1..1
   return normalized * range;
 }
+
+/** Maps a project's platform to the right DeviceMockup frame. */
+export function mockupKindForPlatform(platform: string): "phone" | "web" | "code" {
+  if (platform === "Android" || platform === "iOS") return "phone";
+  if (platform === "Web" || platform === "Desktop") return "web";
+  return "code";
+}

@@ -13,10 +13,13 @@ import { Toolbox } from "@/components/sections/Toolbox";
 import { RandomFacts } from "@/components/sections/RandomFacts";
 import { Guestbook } from "@/components/sections/Guestbook";
 import { Now } from "@/components/sections/Now";
+import { Contact } from "@/components/sections/Contact";
 import { PageBreak } from "@/components/scrapbook/PageBreak";
+import { FloatingNotesLayer } from "@/components/scrapbook/FloatingNotesLayer";
 import {
   getTimeline,
   getFeaturedProjects,
+  getAllProjects,
   getCurrentDesk,
   getGraveyard,
   getIdeas,
@@ -25,12 +28,17 @@ import {
   getNotebookEntries,
   getNowStatus,
   getApprovedGuestbook,
+  getSiteImages,
+  getHeroStatus,
+  getCraftSkills,
+  getFloatingNotes,
 } from "@/lib/supabase/queries";
 
 export default async function Home() {
   const [
     timeline,
     projects,
+    allProjects,
     currentDesk,
     graveyard,
     ideas,
@@ -39,9 +47,14 @@ export default async function Home() {
     notebookEntries,
     nowStatus,
     guestbookEntries,
+    siteImages,
+    heroStatus,
+    craftSkills,
+    floatingNotes,
   ] = await Promise.all([
     getTimeline(),
     getFeaturedProjects(),
+    getAllProjects(),
     getCurrentDesk(),
     getGraveyard(),
     getIdeas(),
@@ -50,28 +63,32 @@ export default async function Home() {
     getNotebookEntries(),
     getNowStatus(),
     getApprovedGuestbook(),
+    getSiteImages(),
+    getHeroStatus(),
+    getCraftSkills(),
+    getFloatingNotes(),
   ]);
 
   return (
     <>
       <Sidebar />
       <SidebarOffset>
-        <main>
-          <Hero />
+        <main className="relative">
+          <Hero siteImages={siteImages} heroStatus={heroStatus} />
           <PageBreak />
-          <About />
+          <About siteImages={siteImages} craftSkills={craftSkills} />
           <PageBreak />
           <Timeline nodes={timeline} />
           <PageBreak />
           <FeaturedProjects projects={projects} />
           <PageBreak />
-          <CurrentDesk desk={currentDesk} />
+          <CurrentDesk desk={currentDesk} projects={allProjects} />
           <PageBreak />
           <Graveyard items={graveyard} />
           <PageBreak />
           <IdeaParkingLot ideas={ideas} />
           <PageBreak />
-          <FailureWall failures={failures} />
+          <FailureWall failures={failures} siteImages={siteImages} />
           <PageBreak />
           <LessonsLearned lessons={lessons} />
           <PageBreak />
@@ -79,23 +96,27 @@ export default async function Home() {
           <PageBreak />
           <Toolbox />
           <PageBreak />
-          <RandomFacts />
+          <RandomFacts siteImages={siteImages} />
           <PageBreak />
           <Guestbook entries={guestbookEntries} />
           <PageBreak />
           <Now now={nowStatus} />
+          <PageBreak />
+          <Contact />
 
           <footer className="mx-auto max-w-5xl px-6 pt-4 pb-16 text-center">
-            <p className="font-(family-name:--font-hand) text-lg text-(--color-ink-faint)">
+            <p className="font-hand text-lg text-(--color-ink-faint)">
               This isn&apos;t a museum of finished work.
             </p>
-            <p className="font-(family-name:--font-hand) text-lg text-(--color-ink-faint)">
+            <p className="font-hand text-lg text-(--color-ink-faint)">
               It&apos;s a notebook of things I&apos;ve built, broken, abandoned, and learned from.
             </p>
             <p className="mt-4 font-(family-name:--font-mono) text-xs text-(--color-ink-faint)">
               Made with ♥ by Hamza
             </p>
           </footer>
+
+          <FloatingNotesLayer notes={floatingNotes} />
         </main>
       </SidebarOffset>
     </>

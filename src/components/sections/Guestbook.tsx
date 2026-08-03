@@ -166,26 +166,38 @@ function ModerationPanel() {
   );
 }
 
+// Roughly 3 rows' worth at typical widths (5 doodles/row × 3 rows) —
+// exact row count varies with viewport, but this keeps "Load more"
+// clicks feeling like a consistent, predictable chunk either way.
+const DOODLES_PER_PAGE = 15;
+
 /** The board itself — every approved doodle collaged together, no
  *  individual card chrome. Hover (or tap) a doodle to see who drew it. */
 function DoodleBoard({ entries }: { entries: GuestbookEntry[] }) {
   const [active, setActive] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(DOODLES_PER_PAGE);
 
   if (entries.length === 0) {
     return (
       <div className="flex min-h-[200px] items-center justify-center border-2 border-dashed border-(--color-paper-line) bg-(--color-paper-dark)/30">
-        <p className="font-(family-name:--font-hand) text-lg text-(--color-ink-faint)">
+        <p className="font-hand text-lg text-(--color-ink-faint)">
           No doodles yet — be the first to make a mark ↑
         </p>
       </div>
     );
   }
 
+  const visible = entries.slice(0, visibleCount);
+  const remaining = entries.length - visible.length;
+
   return (
     <div className="relative border border-(--color-paper-line) bg-(--color-paper-dark)/40 p-8">
       <div className="bg-grid pointer-events-none absolute inset-0 opacity-30" aria-hidden />
-      <div className="relative flex flex-wrap items-center justify-center gap-3">
-        {entries.map((entry) => {
+      <p className="relative mb-4 text-center font-(family-name:--font-mono) text-[10px] tracking-widest text-(--color-ink-faint) uppercase">
+        {entries.length} {entries.length === 1 ? "doodle" : "doodles"} and counting
+      </p>
+      <div className="relative flex flex-wrap items-center justify-center gap-3 py-2">
+        {visible.map((entry) => {
           const rotate = seededRotation(entry.id, 12);
           const isActive = active === entry.id;
           return (
@@ -211,9 +223,9 @@ function DoodleBoard({ entries }: { entries: GuestbookEntry[] }) {
               </button>
 
               {isActive && (
-                <div className="absolute top-full left-1/2 z-30 mt-2 w-max max-w-[180px] -translate-x-1/2 rounded bg-(--color-ink) px-2.5 py-1.5 text-center shadow-lg">
+                <div className="absolute bottom-full left-1/2 z-30 mb-2 w-max max-w-[180px] -translate-x-1/2 rounded bg-(--color-ink) px-2.5 py-1.5 text-center shadow-lg">
                   {entry.note && (
-                    <p className="font-(family-name:--font-hand) text-sm text-(--color-paper)">
+                    <p className="font-hand text-sm text-(--color-paper)">
                       &ldquo;{entry.note}&rdquo;
                     </p>
                   )}
@@ -226,6 +238,18 @@ function DoodleBoard({ entries }: { entries: GuestbookEntry[] }) {
           );
         })}
       </div>
+
+      {remaining > 0 && (
+        <div className="relative mt-5 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setVisibleCount((v) => v + DOODLES_PER_PAGE)}
+            className="border border-(--color-ink) px-4 py-1.5 font-(family-name:--font-mono) text-xs uppercase hover:bg-(--color-ink) hover:text-(--color-paper)"
+          >
+            Load more ({remaining} more)
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -283,68 +307,68 @@ export function Guestbook({ entries }: GuestbookProps) {
       {isOwner && <ModerationPanel />}
 
       <div className="mb-12">
-        <NotebookCard id="guestbook-canvas-form" variant="ruled">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <DoodleCanvas ref={canvasRef} />
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label htmlFor="gb-name" className="mb-1 block text-xs text-(--color-ink-faint)">
-                  Your name
-                </label>
-                <input
-                  id="gb-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  maxLength={60}
-                  className="w-full border-b border-(--color-paper-line) bg-transparent py-1.5 font-(family-name:--font-hand) text-lg text-(--color-ink) outline-none focus:border-(--color-pen-blue)"
-                  placeholder="Ali Raza"
-                />
-              </div>
-              <div>
-                <label htmlFor="gb-note" className="mb-1 block text-xs text-(--color-ink-faint)">
-                  Caption (optional)
-                </label>
-                <input
-                  id="gb-note"
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  maxLength={140}
-                  className="w-full border-b border-(--color-paper-line) bg-transparent py-1.5 font-(family-name:--font-hand) text-lg text-(--color-ink) outline-none focus:border-(--color-pen-blue)"
-                  placeholder="Loved the scrapbook vibe!"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={status === "sending"}
-              className="w-fit border border-(--color-ink) px-4 py-2 font-(family-name:--font-mono) text-xs tracking-wide uppercase transition-colors hover:bg-(--color-ink) hover:text-(--color-paper) disabled:opacity-50"
-            >
-              {status === "sending" ? "Sending…" : "Leave your mark"}
-            </button>
-
-            {errorMsg && (
-              <p className="font-(family-name:--font-hand) text-sm text-(--color-stamp-red)">
-                {errorMsg}
-              </p>
-            )}
-            {status === "sent" && (
-              <p className="font-(family-name:--font-hand) text-sm text-(--color-pen-blue)">
-                Thanks! Your doodle is waiting for approval, then it&apos;ll show up on the board.
-              </p>
-            )}
-            {status === "error" && (
-              <p className="font-(family-name:--font-hand) text-sm text-(--color-stamp-red)">
-                Couldn&apos;t submit right now — the guestbook backend isn&apos;t connected yet.
-              </p>
-            )}
-          </form>
-        </NotebookCard>
+        <DoodleBoard entries={doodleEntries} />
       </div>
 
-      <DoodleBoard entries={doodleEntries} />
+      <NotebookCard id="guestbook-canvas-form" variant="ruled">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <DoodleCanvas ref={canvasRef} />
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="gb-name" className="mb-1 block text-xs text-(--color-ink-faint)">
+                Your name
+              </label>
+              <input
+                id="gb-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                maxLength={60}
+                className="w-full border-b border-(--color-paper-line) bg-transparent py-1.5 font-hand text-lg text-(--color-ink) outline-none focus:border-(--color-pen-blue)"
+                placeholder="Ahmad"
+              />
+            </div>
+            <div>
+              <label htmlFor="gb-note" className="mb-1 block text-xs text-(--color-ink-faint)">
+                Caption (optional)
+              </label>
+              <input
+                id="gb-note"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                maxLength={140}
+                className="w-full border-b border-(--color-paper-line) bg-transparent py-1.5 font-hand text-lg text-(--color-ink) outline-none focus:border-(--color-pen-blue)"
+                placeholder="Loved the scrapbook vibe!"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={status === "sending"}
+            className="w-fit border border-(--color-ink) px-4 py-2 font-(family-name:--font-mono) text-xs tracking-wide uppercase transition-colors hover:bg-(--color-ink) hover:text-(--color-paper) disabled:opacity-50"
+          >
+            {status === "sending" ? "Sending…" : "Leave your mark"}
+          </button>
+
+          {errorMsg && (
+            <p className="font-hand text-sm text-(--color-stamp-red)">
+              {errorMsg}
+            </p>
+          )}
+          {status === "sent" && (
+            <p className="font-hand text-sm text-(--color-pen-blue)">
+              Thanks! Your doodle is waiting for approval, then it&apos;ll show up on the board.
+            </p>
+          )}
+          {status === "error" && (
+            <p className="font-hand text-sm text-(--color-stamp-red)">
+              Couldn&apos;t submit right now — the guestbook backend isn&apos;t connected yet.
+            </p>
+          )}
+        </form>
+      </NotebookCard>
     </section>
   );
 }

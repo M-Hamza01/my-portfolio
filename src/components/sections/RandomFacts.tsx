@@ -1,10 +1,10 @@
 import { NotebookCard } from "@/components/scrapbook/NotebookCard";
-import { PolaroidCard } from "@/components/scrapbook/PolaroidCard";
+import { EditablePolaroid } from "@/components/scrapbook/EditablePolaroid";
 import { HandwrittenLabel } from "@/components/scrapbook/HandwrittenLabel";
 import { Doodle } from "@/components/scrapbook/Doodle";
 import { RANDOM_FACTS } from "@/data/randomFacts";
 
-export function RandomFacts() {
+export function RandomFacts({ siteImages }: { siteImages: Record<string, string> }) {
   return (
     <section id="random-facts" className="mx-auto max-w-5xl px-6 py-20">
       <div className="mb-2 flex items-center gap-3">
@@ -25,7 +25,7 @@ export function RandomFacts() {
                 <dt className="font-(family-name:--font-mono) text-xs text-(--color-ink-faint) uppercase">
                   {fact.label}
                 </dt>
-                <dd className="font-(family-name:--font-hand) text-lg text-(--color-ink)">
+                <dd className="font-hand text-lg text-(--color-ink)">
                   {fact.value}
                 </dd>
               </div>
@@ -33,9 +33,10 @@ export function RandomFacts() {
           </dl>
         </NotebookCard>
 
-        <PolaroidCard
-          id="random-facts-photo"
-          src="/placeholder-desk.svg"
+        <EditablePolaroid
+          imageKey="random-facts-photo"
+          defaultSrc="/placeholder-desk.svg"
+          initialSrc={siteImages["random-facts-photo"]}
           alt="Somewhere I like"
           caption="Mountains, mostly."
           width={190}

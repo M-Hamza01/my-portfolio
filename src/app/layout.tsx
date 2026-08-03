@@ -1,15 +1,7 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
-
-// Display face — used sparingly for section titles, gives a
-// blueprint / technical-drawing feel.
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-});
 
 // Body face — clean, quiet, does the actual reading work.
 const inter = Inter({
@@ -34,8 +26,10 @@ const hamzaHandwriting = localFont({
   display: "swap",
 });
 
-// Elms Sans (variable weight) — second custom font, available as its
-// own picker option without being wired in as a default anywhere yet.
+// Elms Sans (variable weight) — also aliased to --font-display (see
+// globals.css), so it's the site-wide heading/section-title font,
+// replacing Space Grotesk. Still separately selectable as its own
+// font-picker option too.
 const elmsSans = localFont({
   src: "../fonts/ElmsSans-Variable.ttf",
   variable: "--font-custom-2",
@@ -63,7 +57,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable} ${hamzaHandwriting.variable} ${elmsSans.variable}`}
+      className={`${inter.variable} ${jetbrainsMono.variable} ${hamzaHandwriting.variable} ${elmsSans.variable}`}
     >
       <body className="paper-grain antialiased">{children}</body>
     </html>

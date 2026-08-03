@@ -7,6 +7,8 @@ export interface ProjectData {
   summary: string;
   stack: string[];
   linkUrl: string | null;
+  githubUrl?: string | null;
+  coverImageUrl?: string | null;
   whyBuilt?: string;
   problemItSolves?: string;
   biggestChallenge?: string;

@@ -4,16 +4,35 @@ import { useState } from "react";
 import { NotebookCard } from "@/components/scrapbook/NotebookCard";
 import { StickyNote } from "@/components/scrapbook/StickyNote";
 import { DeviceMockup } from "@/components/scrapbook/DeviceMockup";
+import { ProgressBar } from "@/components/scrapbook/ProgressBar";
 import { Stamp } from "@/components/scrapbook/Stamp";
 import { HandwrittenLabel } from "@/components/scrapbook/HandwrittenLabel";
 import { Doodle } from "@/components/scrapbook/Doodle";
 import { EditableWrapper } from "@/components/admin/EditableWrapper";
 import { createClient } from "@/lib/supabase/client";
+import { mockupKindForPlatform } from "@/lib/utils";
 import type { CURRENT_DESK as CurrentDeskShape } from "@/data/currentDesk";
+import type { ProjectData } from "@/data/projects";
 
-type DeskData = typeof CurrentDeskShape;
+type DeskData = typeof CurrentDeskShape & {
+  id?: string | null;
+  projectId?: string | null;
+  coverImageUrl?: string | null;
+  platform?: string | null;
+};
 
-function DeskForm({ desk, onSaved, close }: { desk: DeskData; onSaved: (d: DeskData) => void; close: () => void }) {
+function DeskForm({
+  desk,
+  projects,
+  onSaved,
+  close,
+}: {
+  desk: DeskData;
+  projects: ProjectData[];
+  onSaved: (d: DeskData) => void;
+  close: () => void;
+}) {
+  const [projectId, setProjectId] = useState<string>(desk.projectId ?? "");
   const [projectName, setProjectName] = useState(desk.projectName);
   const [blurb, setBlurb] = useState(desk.blurb);
   const [why, setWhy] = useState(desk.why);
@@ -29,11 +48,28 @@ function DeskForm({ desk, onSaved, close }: { desk: DeskData; onSaved: (d: DeskD
     setFocus((prev) => prev.map((f, idx) => (idx === i ? { ...f, ...patch } : f)));
   }
 
+  function removeFocus(i: number) {
+    setFocus((prev) => prev.filter((_, idx) => idx !== i));
+  }
+
+  function handlePickProject(id: string) {
+    setProjectId(id);
+    const p = projects.find((proj) => proj.id === id);
+    if (p) {
+      // Autofill from the project — still editable afterward.
+      setProjectName(p.title);
+      setBlurb(p.summary);
+      if (p.whyBuilt) setWhy(p.whyBuilt);
+      if (p.biggestChallenge) setStuckOn(p.biggestChallenge);
+    }
+  }
+
   async function handleSave() {
     setBusy(true);
     setErrorMsg(null);
     const supabase = createClient();
     const payload = {
+      project_id: projectId || null,
       project_name: projectName.trim(),
       blurb: blurb.trim(),
       why: why.trim(),
@@ -41,13 +77,18 @@ function DeskForm({ desk, onSaved, close }: { desk: DeskData; onSaved: (d: DeskD
       stuck_on: stuckOn.trim(),
       thinking_about: thinkingAbout.trim(),
       next_milestone: nextMilestone.trim(),
-      focus,
+      focus: focus.filter((f) => f.text.trim() !== ""),
     };
     await supabase.from("current_desk_meta").delete().neq("id", "00000000-0000-0000-0000-000000000000");
     const { error } = await supabase.from("current_desk_meta").insert(payload);
     setBusy(false);
     if (error) return setErrorMsg(error.message);
+
+    const linked = projects.find((p) => p.id === projectId);
     onSaved({
+      projectId: payload.project_id,
+      coverImageUrl: linked?.coverImageUrl ?? null,
+      platform: linked?.platform ?? null,
       projectName: payload.project_name,
       blurb: payload.blurb,
       why: payload.why,
@@ -55,13 +96,30 @@ function DeskForm({ desk, onSaved, close }: { desk: DeskData; onSaved: (d: DeskD
       stuckOn: payload.stuck_on,
       thinkingAbout: payload.thinking_about,
       nextMilestone: payload.next_milestone,
-      focus,
+      focus: payload.focus,
     });
     close();
   }
 
   return (
     <div className="flex flex-col gap-4">
+      <div>
+        <label className="mb-1 block text-xs text-(--color-ink-faint)">
+          Link to a project (fills the mockup + autofills fields)
+        </label>
+        <select
+          value={projectId}
+          onChange={(e) => handlePickProject(e.target.value)}
+          className="w-full border border-(--color-paper-line) bg-white p-2 text-sm outline-none focus:border-(--color-pen-blue)"
+        >
+          <option value="">— No linked project —</option>
+          {projects.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.title}
+            </option>
+          ))}
+        </select>
+      </div>
       <div>
         <label className="mb-1 block text-xs text-(--color-ink-faint)">Project name</label>
         <input value={projectName} onChange={(e) => setProjectName(e.target.value)}
@@ -95,6 +153,7 @@ function DeskForm({ desk, onSaved, close }: { desk: DeskData; onSaved: (d: DeskD
               <input type="checkbox" checked={f.done} onChange={(e) => updateFocus(i, { done: e.target.checked })} />
               <input value={f.text} onChange={(e) => updateFocus(i, { text: e.target.value })}
                 className="flex-1 border border-(--color-paper-line) bg-white p-1.5 text-sm outline-none focus:border-(--color-pen-blue)" />
+              <button type="button" onClick={() => removeFocus(i)} aria-label="Remove" className="text-xs text-(--color-stamp-red)">✕</button>
             </div>
           ))}
         </div>
@@ -120,7 +179,7 @@ function DeskForm({ desk, onSaved, close }: { desk: DeskData; onSaved: (d: DeskD
   );
 }
 
-export function CurrentDesk({ desk: initial }: { desk: DeskData }) {
+export function CurrentDesk({ desk: initial, projects }: { desk: DeskData; projects: ProjectData[] }) {
   const [D, setD] = useState(initial);
 
   return (
@@ -133,7 +192,7 @@ export function CurrentDesk({ desk: initial }: { desk: DeskData }) {
       </HandwrittenLabel>
 
       <EditableWrapper label="Edit current desk" renderEditor={(close) => (
-        <DeskForm desk={D} onSaved={setD} close={close} />
+        <DeskForm desk={D} projects={projects} onSaved={setD} close={close} />
       )}>
         <div className="grid gap-6 lg:grid-cols-[1fr_1fr_auto]">
           <NotebookCard id="current-desk-main" className="flex flex-col gap-4">
@@ -145,8 +204,10 @@ export function CurrentDesk({ desk: initial }: { desk: DeskData }) {
               <Stamp color="blue" rotate={-4}>In Progress</Stamp>
             </div>
             <StickyNote id="current-desk-why" color="yellow" size="sm" className="w-fit max-w-xs">
-              <span className="font-bold">Why? </span>
-              {D.why}
+              <span className="font-(family-name:--font-body)">
+                <span className="font-bold">Why? </span>
+                {D.why}
+              </span>
             </StickyNote>
           </NotebookCard>
 
@@ -156,9 +217,7 @@ export function CurrentDesk({ desk: initial }: { desk: DeskData }) {
                 <span>Progress</span>
                 <span>{D.progressPercent}%</span>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-(--color-paper-dark)">
-                <div className="h-full rounded-full bg-(--color-pen-blue)" style={{ width: `${D.progressPercent}%` }} />
-              </div>
+              <ProgressBar percent={D.progressPercent} />
             </div>
             <div>
               <p className="font-(family-name:--font-mono) text-xs text-(--color-ink-faint) uppercase">Currently stuck on</p>
@@ -167,14 +226,16 @@ export function CurrentDesk({ desk: initial }: { desk: DeskData }) {
             <div>
               <p className="mb-2 font-(family-name:--font-mono) text-xs text-(--color-ink-faint) uppercase">Focus</p>
               <ul className="space-y-1.5">
-                {D.focus.map((item) => (
-                  <li key={item.text} className="flex items-center gap-2 text-sm text-(--color-ink-soft)">
-                    <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-[2px] border border-(--color-ink-faint)" aria-hidden>
-                      {item.done && <Doodle name="tick" width={10} onScroll={false} className="text-(--color-ink)" />}
-                    </span>
-                    {item.text}
-                  </li>
-                ))}
+                {D.focus.map((item, i) =>
+                  item.text.trim() === "" ? null : (
+                    <li key={i} className="flex items-center gap-2 text-sm text-(--color-ink-soft)">
+                      <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-[2px] border border-(--color-ink-faint)" aria-hidden>
+                        {item.done && <Doodle name="tick" width={10} onScroll={false} className="text-(--color-ink)" />}
+                      </span>
+                      {item.text}
+                    </li>
+                  )
+                )}
               </ul>
             </div>
             <div>
@@ -183,13 +244,17 @@ export function CurrentDesk({ desk: initial }: { desk: DeskData }) {
             </div>
             <div className="flex items-center gap-2 border-t border-(--color-paper-line) pt-3">
               <p className="font-(family-name:--font-mono) text-xs text-(--color-ink-faint) uppercase">Next milestone</p>
-              <p className="font-(family-name:--font-hand) text-base text-(--color-ink)">{D.nextMilestone}</p>
+              <p className="font-(family-name:--font-body) text-base text-(--color-ink)">{D.nextMilestone}</p>
               <Doodle name="flag" width={16} onScroll={false} className="text-(--color-stamp-red)" />
             </div>
           </NotebookCard>
 
           <div className="flex justify-center lg:block">
-            <DeviceMockup kind="phone" className="w-32" />
+            <DeviceMockup
+              kind={mockupKindForPlatform(D.platform ?? "Android")}
+              imageUrl={D.coverImageUrl}
+              imageAlt={`${D.projectName} screenshot`}
+            />
           </div>
         </div>
       </EditableWrapper>

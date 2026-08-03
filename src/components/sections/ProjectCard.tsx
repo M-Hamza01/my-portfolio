@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { SiGithub } from "react-icons/si";
 import { NotebookCard } from "@/components/scrapbook/NotebookCard";
 import { DeviceMockup } from "@/components/scrapbook/DeviceMockup";
 import { Stamp } from "@/components/scrapbook/Stamp";
+import { mockupKindForPlatform } from "@/lib/utils";
 import type { ProjectData } from "@/data/projects";
 
 const statusColor = {
@@ -33,7 +35,14 @@ export function ProjectCard({ project }: { project: ProjectData }) {
 
   return (
     <NotebookCard id={project.id} className="flex h-full flex-col gap-4">
-      <DeviceMockup kind={project.platform === "Web" ? "web" : "phone"} className="mb-1" />
+      <div className="mb-1 flex h-40 items-center justify-center">
+        <DeviceMockup
+          kind={mockupKindForPlatform(project.platform)}
+          size="sm"
+          imageUrl={project.coverImageUrl}
+          imageAlt={`${project.title} screenshot`}
+        />
+      </div>
 
       <div>
         <div className="mb-1 flex items-center justify-between gap-2">
@@ -79,22 +88,33 @@ export function ProjectCard({ project }: { project: ProjectData }) {
         </div>
       )}
 
-      <div className="mt-auto flex items-center justify-between pt-2">
+      <div className="mt-auto flex items-center justify-between gap-2 pt-2">
         <Stamp color={statusColor[project.status]} rotate={-3}>
           {statusLabel[project.status]}
         </Stamp>
-        {project.linkUrl ? (
-          <a
-            href={project.linkUrl}
-            className="font-(family-name:--font-hand) text-base text-(--color-pen-blue) underline decoration-dashed underline-offset-4"
-          >
-            View project →
-          </a>
-        ) : (
-          <span className="font-(family-name:--font-hand) text-base text-(--color-ink-faint)">
-            coming soon
-          </span>
-        )}
+        <div className="flex items-center gap-3">
+          {project.githubUrl && (
+            <a
+              href={project.githubUrl}
+              aria-label="View on GitHub"
+              className="text-(--color-ink-soft) hover:text-(--color-ink)"
+            >
+              <SiGithub size={15} />
+            </a>
+          )}
+          {project.linkUrl ? (
+            <a
+              href={project.linkUrl}
+              className="font-(family-name:--font-body) text-sm font-medium text-(--color-pen-blue) underline decoration-dashed underline-offset-4"
+            >
+              View details →
+            </a>
+          ) : (
+            <span className="font-(family-name:--font-body) text-sm text-(--color-ink-faint)">
+              coming soon
+            </span>
+          )}
+        </div>
       </div>
     </NotebookCard>
   );

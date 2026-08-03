@@ -22,7 +22,7 @@
   --color-sticky-blue: #c4d6e3;
   --color-sticky-green: #cfd9bd;
 
-  --font-display: var(--font-space-grotesk);
+  --font-display: var(--font-custom-2);
   --font-body: var(--font-inter);
   --font-mono: var(--font-jetbrains);
 
@@ -59,6 +59,15 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+/* Hamza's handwriting reads better with a touch of breathing room and
+   a slight lean — matches how it looks written by hand rather than
+   cramped like a body-copy font. */
+@utility font-hand {
+  font-family: var(--font-hand);
+  font-style: italic;
+  letter-spacing: 0.02em;
 }
 
 body {
@@ -140,4 +149,34 @@ body {
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Custom scrollbar — the default browser bar clashes with the paper
+   aesthetic everywhere else on the site. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-kraft) var(--color-paper-dark);
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-paper-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-kraft);
+  border-radius: 8px;
+  border: 3px solid var(--color-paper-dark);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-ink-faint);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--color-paper-dark);
 }
