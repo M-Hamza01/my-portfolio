@@ -35,7 +35,7 @@ export function ProjectCard({ project }: { project: ProjectData }) {
 
   return (
     <NotebookCard id={project.id} className="flex h-full flex-col gap-4">
-      <div className="mb-1 flex h-40 items-center justify-center">
+      <div className="mb-1 flex h-48 items-center justify-center">
         <DeviceMockup
           kind={mockupKindForPlatform(project.platform)}
           size="sm"
@@ -49,11 +49,12 @@ export function ProjectCard({ project }: { project: ProjectData }) {
           <h3 className="font-(family-name:--font-display) text-lg font-bold">
             {project.title}
           </h3>
-          <span className="font-(family-name:--font-mono) text-[10px] text-(--color-ink-faint) uppercase">
+          <span className="flex items-center gap-1.5 font-(family-name:--font-mono) text-[10px] text-(--color-ink-faint) uppercase">
+            {project.featured && <span className="text-(--color-stamp-red)">★</span>}
             {project.platform}
           </span>
         </div>
-        <p className="text-sm text-(--color-ink-soft)">{project.summary}</p>
+        <p className="text-sm whitespace-pre-wrap text-(--color-ink-soft)">{project.summary}</p>
       </div>
 
       <p className="font-(family-name:--font-mono) text-xs text-(--color-ink-faint)">
@@ -79,7 +80,7 @@ export function ProjectCard({ project }: { project: ProjectData }) {
                       <p className="font-(family-name:--font-mono) text-[10px] tracking-widest text-(--color-ink-faint) uppercase">
                         {label}
                       </p>
-                      <p className="text-sm text-(--color-ink-soft)">{project[key] as string}</p>
+                      <p className="text-sm whitespace-pre-wrap text-(--color-ink-soft)">{project[key] as string}</p>
                     </div>
                   )
               )}

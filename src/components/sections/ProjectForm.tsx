@@ -9,6 +9,11 @@ function slugify(s: string) {
   return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
+function isSlugConflict(error: { code?: string; message?: string } | null) {
+  if (!error) return false;
+  return error.code === "23505" || /projects_slug_key/i.test(error.message ?? "");
+}
+
 function Field({
   label,
   children,
@@ -29,11 +34,14 @@ const inputClass =
 
 export function ProjectForm({
   project,
+  defaultFeatured = true,
   onSaved,
   onDeleted,
   close,
 }: {
   project?: ProjectData;
+  /** Only used when creating a new project (not editing). */
+  defaultFeatured?: boolean;
   onSaved: (p: ProjectData) => void;
   onDeleted?: (id: string) => void;
   close: () => void;
@@ -52,7 +60,7 @@ export function ProjectForm({
   const [biggestMistake, setBiggestMistake] = useState(project?.biggestMistake ?? "");
   const [proudOf, setProudOf] = useState(project?.proudOf ?? "");
   const [improveToday, setImproveToday] = useState(project?.improveToday ?? "");
-  const [featured, setFeatured] = useState(true);
+  const [featured, setFeatured] = useState(project?.featured ?? defaultFeatured);
   const [busy, setBusy] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -61,9 +69,8 @@ export function ProjectForm({
     setBusy(true);
     setErrorMsg(null);
     const supabase = createClient();
-    const payload = {
+    const basePayload = {
       title: title.trim(),
-      slug: project?.slug ?? slugify(title),
       platform: platform.trim(),
       status,
       summary: summary.trim(),
@@ -81,31 +88,59 @@ export function ProjectForm({
     };
 
     if (project) {
-      const { error } = await supabase.from("projects").update(payload).eq("id", project.id);
+      // Editing keeps the existing slug — no regeneration, no collision risk.
+      const { error } = await supabase.from("projects").update({ ...basePayload, slug: project.slug }).eq("id", project.id);
       setBusy(false);
       if (error) return setErrorMsg(error.message);
       onSaved({
         id: project.id,
-        slug: payload.slug,
-        title: payload.title,
-        platform: payload.platform,
-        status: payload.status,
-        summary: payload.summary,
-        stack: payload.stack,
-        linkUrl: payload.link_url,
-        githubUrl: payload.github_url,
-        coverImageUrl: payload.cover_image_url,
-        whyBuilt: payload.why_built,
-        problemItSolves: payload.problem_it_solves,
-        biggestChallenge: payload.biggest_challenge,
-        biggestMistake: payload.biggest_mistake,
-        proudOf: payload.proud_of,
-        improveToday: payload.improve_today,
+        slug: project.slug,
+        title: basePayload.title,
+        platform: basePayload.platform,
+        status: basePayload.status,
+        summary: basePayload.summary,
+        stack: basePayload.stack,
+        linkUrl: basePayload.link_url,
+        githubUrl: basePayload.github_url,
+        coverImageUrl: basePayload.cover_image_url,
+        whyBuilt: basePayload.why_built,
+        problemItSolves: basePayload.problem_it_solves,
+        biggestChallenge: basePayload.biggest_challenge,
+        biggestMistake: basePayload.biggest_mistake,
+        proudOf: basePayload.proud_of,
+        improveToday: basePayload.improve_today,
+        featured: basePayload.featured,
       });
     } else {
-      const { data, error } = await supabase.from("projects").insert(payload).select().single();
+      // New project: try the title's slug, and if another project
+      // already has it, quietly retry with -2, -3, etc. instead of
+      // surfacing a raw database error.
+      const baseSlug = slugify(title) || "project";
+      let data = null;
+      let error: { code?: string; message?: string } | null = null;
+      for (let attempt = 0; attempt < 8; attempt++) {
+        const candidateSlug = attempt === 0 ? baseSlug : `${baseSlug}-${attempt + 1}`;
+        const result = await supabase
+          .from("projects")
+          .insert({ ...basePayload, slug: candidateSlug })
+          .select()
+          .single();
+        if (!result.error) {
+          data = result.data;
+          error = null;
+          break;
+        }
+        error = result.error;
+        if (!isSlugConflict(error)) break;
+      }
       setBusy(false);
-      if (error || !data) return setErrorMsg(error?.message ?? "Couldn't save.");
+      if (error || !data) {
+        return setErrorMsg(
+          isSlugConflict(error)
+            ? "Couldn't find a free URL for this project — try tweaking the title slightly."
+            : error?.message ?? "Couldn't save."
+        );
+      }
       onSaved({
         id: data.id,
         slug: data.slug,
@@ -123,6 +158,7 @@ export function ProjectForm({
         biggestMistake: data.biggest_mistake,
         proudOf: data.proud_of,
         improveToday: data.improve_today,
+        featured: data.featured,
       });
     }
     close();
@@ -227,12 +263,10 @@ export function ProjectForm({
         <textarea value={improveToday} onChange={(e) => setImproveToday(e.target.value)} rows={2} maxLength={200} className={`${inputClass} resize-none`} />
       </Field>
 
-      {!project && (
-        <label className="flex items-center gap-2 text-sm text-(--color-ink-soft)">
-          <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} />
-          Show in Featured Projects
-        </label>
-      )}
+      <label className="flex items-center gap-2 text-sm text-(--color-ink-soft)">
+        <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} />
+        Show in Featured Projects (top 6 on the homepage)
+      </label>
 
       {errorMsg && <p className="text-xs text-(--color-stamp-red)">{errorMsg}</p>}
       <div className="flex items-center justify-between pb-2">

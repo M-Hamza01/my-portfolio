@@ -9,6 +9,7 @@ export interface ProjectData {
   linkUrl: string | null;
   githubUrl?: string | null;
   coverImageUrl?: string | null;
+  featured?: boolean;
   whyBuilt?: string;
   problemItSolves?: string;
   biggestChallenge?: string;

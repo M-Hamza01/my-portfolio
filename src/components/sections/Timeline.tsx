@@ -143,7 +143,7 @@ export function Timeline({ nodes: initial }: { nodes: TimelineNodeData[] }) {
       <div className="relative">
         <div
           aria-hidden
-          className="absolute top-7 right-6 left-6 hidden border-t-2 border-dashed border-(--color-paper-line) md:block"
+          className="absolute top-7 right-6 left-6 block border-t-2 border-dashed border-(--color-paper-line)"
         />
 
         <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 md:grid-cols-6 md:gap-x-2">

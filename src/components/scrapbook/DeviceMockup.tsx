@@ -20,9 +20,9 @@ interface DeviceMockupProps {
 // at the same visual "weight," so these are tuned to look balanced
 // side by side in a grid, not to share an identical box size.
 const SIZES = {
-  phone: { sm: "h-[200px] w-[100px]", md: "h-[224px] w-[112px]" },
-  web: { sm: "h-[120px] w-[160px]", md: "h-[180px] w-[240px]" },
-  code: { sm: "h-[120px] w-[160px]", md: "h-[180px] w-[240px]" },
+  phone: { sm: "h-[190px] w-[95px]", md: "h-[280px] w-[140px]" },
+  web: { sm: "h-[150px] w-[200px]", md: "h-[220px] w-[290px]" },
+  code: { sm: "h-[150px] w-[200px]", md: "h-[220px] w-[290px]" },
 };
 
 /**
@@ -55,7 +55,7 @@ export function DeviceMockup({
         </div>
         {imageUrl ? (
           <div className="relative flex-1">
-            <Image src={imageUrl} alt={imageAlt} fill className="object-cover object-top" />
+            <Image src={imageUrl} alt={imageAlt} fill sizes="240px" className="object-cover object-top" />
           </div>
         ) : (
           <div className="flex flex-1 items-center justify-center">
@@ -82,7 +82,7 @@ export function DeviceMockup({
         </div>
         {imageUrl ? (
           <div className="relative flex-1">
-            <Image src={imageUrl} alt={imageAlt} fill className="object-cover object-top" />
+            <Image src={imageUrl} alt={imageAlt} fill sizes="240px" className="object-cover object-top" />
           </div>
         ) : (
           <div className="flex flex-1 flex-col gap-1.5 p-3 font-(family-name:--font-mono) text-[10px] text-white/40">
@@ -106,7 +106,7 @@ export function DeviceMockup({
     >
       {imageUrl ? (
         <div className="relative flex-1">
-          <Image src={imageUrl} alt={imageAlt} fill className="object-cover" />
+          <Image src={imageUrl} alt={imageAlt} fill sizes="240px" className="object-cover" />
           <div className="absolute top-1.5 left-1/2 h-1 w-6 -translate-x-1/2 rounded-full bg-(--color-ink)/70" />
         </div>
       ) : (

@@ -7,8 +7,24 @@ import { HandwrittenLabel } from "@/components/scrapbook/HandwrittenLabel";
 import { EditableWrapper } from "@/components/admin/EditableWrapper";
 import type { ProjectData } from "@/data/projects";
 
+const MAX_FEATURED_DISPLAY = 6;
+
 export function FeaturedProjects({ projects: initial }: { projects: ProjectData[] }) {
-  const [projects, setProjects] = useState(initial);
+  const [projects, setProjects] = useState(initial.slice(0, MAX_FEATURED_DISPLAY));
+
+  function handleProjectSaved(updated: ProjectData) {
+    setProjects((prev) => {
+      // If it got unfeatured in this edit, drop it from this section —
+      // it still exists, just lives on the All Projects page now.
+      if (updated.featured === false) {
+        return prev.filter((p) => p.id !== updated.id);
+      }
+      const exists = prev.some((p) => p.id === updated.id);
+      if (exists) return prev.map((p) => (p.id === updated.id ? updated : p));
+      if (prev.length >= MAX_FEATURED_DISPLAY) return prev; // already full
+      return [...prev, updated];
+    });
+  }
 
   return (
     <section id="projects" className="mx-auto max-w-5xl px-6 py-20">
@@ -22,10 +38,10 @@ export function FeaturedProjects({ projects: initial }: { projects: ProjectData[
           </HandwrittenLabel>
         </div>
         <a
-          href="#projects"
+          href="/projects"
           className="hidden font-(family-name:--font-mono) text-xs text-(--color-pen-blue) underline underline-offset-4 sm:inline"
         >
-          See all projects
+          See all projects →
         </a>
       </div>
 
@@ -38,9 +54,7 @@ export function FeaturedProjects({ projects: initial }: { projects: ProjectData[
               <ProjectForm
                 project={project}
                 close={close}
-                onSaved={(updated) =>
-                  setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)))
-                }
+                onSaved={handleProjectSaved}
                 onDeleted={(id) => setProjects((prev) => prev.filter((p) => p.id !== id))}
               />
             )}
@@ -49,18 +63,27 @@ export function FeaturedProjects({ projects: initial }: { projects: ProjectData[
           </EditableWrapper>
         ))}
 
-        <EditableWrapper
-          mode="add"
-          label="Add project"
-          renderEditor={(close) => (
-            <ProjectForm close={close} onSaved={(created) => setProjects((prev) => [...prev, created])} />
-          )}
-        >
-          <div className="flex min-h-[16rem] items-center justify-center border-2 border-dashed border-(--color-paper-line) p-8 text-sm text-(--color-ink-faint)">
-            + Add project
-          </div>
-        </EditableWrapper>
+        {projects.length < MAX_FEATURED_DISPLAY && (
+          <EditableWrapper
+            mode="add"
+            label="Add project"
+            renderEditor={(close) => (
+              <ProjectForm defaultFeatured close={close} onSaved={(created) => setProjects((prev) => [...prev, created])} />
+            )}
+          >
+            <div className="flex min-h-[16rem] items-center justify-center border-2 border-dashed border-(--color-paper-line) p-8 text-sm text-(--color-ink-faint)">
+              + Add project
+            </div>
+          </EditableWrapper>
+        )}
       </div>
+
+      <a
+        href="/projects"
+        className="mt-6 block text-center font-(family-name:--font-mono) text-xs text-(--color-pen-blue) underline underline-offset-4 sm:hidden"
+      >
+        See all projects →
+      </a>
     </section>
   );
 }

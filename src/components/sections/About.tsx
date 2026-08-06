@@ -174,7 +174,7 @@ export function About({
             >
               <StickyNote id={skill.id} color={skill.color} className="w-60">
                 <p className="font-bold">{skill.title}</p>
-                <p className="mt-1 text-sm opacity-80" style={fontStyle(skill.font)}>
+                <p className="mt-1 text-sm whitespace-pre-wrap opacity-80" style={fontStyle(skill.font)}>
                   {skill.description}
                 </p>
               </StickyNote>

@@ -199,12 +199,12 @@ export function CurrentDesk({ desk: initial, projects }: { desk: DeskData; proje
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h3 className="font-(family-name:--font-display) text-xl font-bold">{D.projectName}</h3>
-                <p className="mt-1 text-sm text-(--color-ink-soft)">{D.blurb}</p>
+                <p className="mt-1 text-sm whitespace-pre-wrap text-(--color-ink-soft)">{D.blurb}</p>
               </div>
               <Stamp color="blue" rotate={-4}>In Progress</Stamp>
             </div>
             <StickyNote id="current-desk-why" color="yellow" size="sm" className="w-fit max-w-xs">
-              <span className="font-(family-name:--font-body)">
+              <span className="font-(family-name:--font-body) whitespace-pre-wrap">
                 <span className="font-bold">Why? </span>
                 {D.why}
               </span>

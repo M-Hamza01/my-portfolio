@@ -157,7 +157,7 @@ export function LessonsLearned({ lessons: initial }: { lessons: LessonData[] }) 
             )}
           >
             <StickyNote id={lesson.id} color={lesson.color} className="w-48">
-              <p className="text-lg leading-snug" style={fontStyle(lesson.font)}>
+              <p className="text-lg leading-snug whitespace-pre-wrap" style={fontStyle(lesson.font)}>
                 {lesson.text}
               </p>
             </StickyNote>

@@ -35,7 +35,15 @@ export function FloatingStickyNote({ note, isOwner, onUpdate, onDelete }: Floati
 
   async function persist(patch: Record<string, unknown>) {
     const supabase = createClient();
-    await supabase.from("floating_notes").update(patch).eq("id", note.id);
+    const { error } = await supabase.from("floating_notes").update(patch).eq("id", note.id);
+    if (error) {
+      // Surfaced to the console rather than swallowed — a silent
+      // failure here is exactly what makes a drag/resize look like it
+      // "didn't stick" after a refresh, since the DB never got the
+      // new value even though the UI updated optimistically.
+      console.error("Failed to save sticky note:", error.message);
+    }
+    return error;
   }
 
   async function handleDragEnd() {
@@ -92,8 +100,12 @@ export function FloatingStickyNote({ note, isOwner, onUpdate, onDelete }: Floati
   async function handleDelete() {
     setBusy(true);
     const supabase = createClient();
-    await supabase.from("floating_notes").delete().eq("id", note.id);
+    const { error } = await supabase.from("floating_notes").delete().eq("id", note.id);
     setBusy(false);
+    if (error) {
+      console.error("Failed to delete sticky note:", error.message);
+      return;
+    }
     onDelete(note.id);
   }
 
@@ -108,7 +120,7 @@ export function FloatingStickyNote({ note, isOwner, onUpdate, onDelete }: Floati
     >
       <div
         className="group/floatnote relative"
-        style={{ width: size.width, height: size.height, rotate: `${note.rotate}deg` }}
+        style={{ width: size.width, height: size.height, rotate: `${rotate}deg` }}
       >
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -121,7 +133,7 @@ export function FloatingStickyNote({ note, isOwner, onUpdate, onDelete }: Floati
             inside the paper at any resize, not just the size this was
             tuned at. */}
         <div className="absolute overflow-hidden" style={{ top: "30%", left: "30%", right: "10%", bottom: "20%" }}>
-          <p className="text-base leading-snug text-(--color-ink)" style={fontStyle(note.font)}>
+          <p className="text-base leading-snug whitespace-pre-wrap text-(--color-ink)" style={fontStyle(note.font)}>
             {note.text}
           </p>
         </div>

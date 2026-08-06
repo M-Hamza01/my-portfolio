@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Home,
   User,
@@ -42,7 +42,32 @@ const NAV = [
 
 export function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeHref, setActiveHref] = useState<string | null>(null);
   const { isOwner } = useIsOwner();
+
+  useEffect(() => {
+    const sections = NAV.map(({ href }) => document.getElementById(href.slice(1))).filter(
+      (el): el is HTMLElement => el !== null
+    );
+    if (sections.length === 0) return; // e.g. on /projects, which has no #ids
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length === 0) return;
+        // Prefer the one closest to the top of the "active band".
+        const topMost = visible.reduce((a, b) => (a.boundingClientRect.top < b.boundingClientRect.top ? a : b));
+        setActiveHref(`#${topMost.target.id}`);
+      },
+      // A horizontal band roughly in the upper-middle of the viewport —
+      // a section counts as "active" once it reaches there, not only
+      // when perfectly centered.
+      { rootMargin: "-15% 0px -70% 0px", threshold: 0 }
+    );
+
+    sections.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
 
   async function handleSignOut() {
     const supabase = createClient();
@@ -76,7 +101,12 @@ export function Sidebar() {
           key={href}
           href={href}
           onClick={() => setMobileOpen(false)}
-          className="flex items-center gap-3 rounded px-3 py-2 text-sm text-(--color-ink-soft) transition-colors hover:bg-(--color-paper-dark) hover:text-(--color-ink)"
+          className={cn(
+            "flex items-center gap-3 rounded px-3 py-2 text-sm transition-colors",
+            activeHref === href
+              ? "bg-(--color-paper-dark) text-(--color-ink)"
+              : "text-(--color-ink-soft) hover:bg-(--color-paper-dark) hover:text-(--color-ink)"
+          )}
         >
           <Icon size={16} />
           {label}

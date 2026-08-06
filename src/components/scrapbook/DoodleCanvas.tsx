@@ -215,7 +215,7 @@ export const DoodleCanvas = forwardRef<DoodleCanvasHandle, DoodleCanvasProps>(
             </button>
           </div>
 
-          <div className="flex gap-1.5">
+          <div className="flex items-center gap-1.5">
             {COLORS.map((c) => (
               <button
                 key={c.id}
@@ -232,6 +232,36 @@ export const DoodleCanvas = forwardRef<DoodleCanvasHandle, DoodleCanvasProps>(
                 style={{ backgroundColor: c.hex }}
               />
             ))}
+
+            {/* Full color picker for anything beyond the presets — the
+                swatch itself shows the currently picked custom color. */}
+            <label
+              className="relative flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-(--color-ink-faint)"
+              style={
+                !COLORS.some((c) => c.hex === color) ? { borderStyle: "solid", borderColor: "var(--color-ink)" } : undefined
+              }
+              title="Pick any color"
+            >
+              <span
+                className="h-4 w-4 rounded-full"
+                style={{
+                  background: !COLORS.some((c) => c.hex === color)
+                    ? color
+                    : "conic-gradient(red, yellow, lime, cyan, blue, magenta, red)",
+                }}
+                aria-hidden
+              />
+              <input
+                type="color"
+                value={color}
+                onChange={(e) => {
+                  setColor(e.target.value);
+                  setTool("pen");
+                }}
+                aria-label="Pick a custom color"
+                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+              />
+            </label>
           </div>
 
           <div className="flex items-center gap-1.5">

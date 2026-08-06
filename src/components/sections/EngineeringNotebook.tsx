@@ -162,7 +162,7 @@ export function EngineeringNotebook({ entries: initial }: { entries: NotebookEnt
               <p className="font-(family-name:--font-mono) text-xs text-(--color-ink-faint)">
                 {entry.date}
               </p>
-              <p className="flex-1 text-sm text-(--color-ink-soft)" style={fontStyle(entry.font)}>{entry.body}</p>
+              <p className="flex-1 text-sm whitespace-pre-wrap text-(--color-ink-soft)" style={fontStyle(entry.font)}>{entry.body}</p>
               <span className="w-fit rounded-full bg-(--color-paper-dark) px-2.5 py-0.5 font-(family-name:--font-mono) text-[10px] tracking-wide text-(--color-ink-soft) uppercase">
                 {entry.tag}
               </span>

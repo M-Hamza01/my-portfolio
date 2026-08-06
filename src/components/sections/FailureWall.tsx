@@ -151,7 +151,7 @@ export function FailureWall({ failures: initial, siteImages }: { failures: Failu
               >
                 <li className="flex items-start gap-2 text-sm text-(--color-ink-soft)">
                   <span className="mt-0.5 font-bold text-(--color-stamp-red)">✕</span>
-                  <span style={fontStyle(f.font)}>{f.entry}</span>
+                  <span className="whitespace-pre-wrap" style={fontStyle(f.font)}>{f.entry}</span>
                 </li>
               </EditableWrapper>
             ))}

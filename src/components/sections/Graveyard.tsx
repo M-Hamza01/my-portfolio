@@ -209,14 +209,14 @@ export function Graveyard({ items: initial }: { items: GraveyardItemData[] }) {
                 <p className="font-(family-name:--font-mono) text-[10px] tracking-widest text-(--color-ink-faint) uppercase">
                   Reason
                 </p>
-                <p className="text-sm text-(--color-ink-soft)">{item.reason}</p>
+                <p className="text-sm whitespace-pre-wrap text-(--color-ink-soft)">{item.reason}</p>
               </div>
 
               <div className="border-t border-(--color-paper-line) pt-3">
                 <p className="font-(family-name:--font-mono) text-[10px] tracking-widest text-(--color-ink-faint) uppercase">
                   Lesson
                 </p>
-                <p className="font-hand text-base text-(--color-ink)" style={fontStyle(item.font)}>
+                <p className="font-hand text-base whitespace-pre-wrap text-(--color-ink)" style={fontStyle(item.font)}>
                   {item.lesson}
                 </p>
               </div>

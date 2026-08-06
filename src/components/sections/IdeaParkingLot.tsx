@@ -405,7 +405,7 @@ export function IdeaParkingLot({ ideas: initial }: { ideas: IdeaData[] }) {
           >
             <StickyNote id={idea.id} color={idea.color} className="w-52">
               <p className="font-(family-name:--font-body) text-lg font-bold">{idea.title}</p>
-              <p className="mt-2 text-sm opacity-80" style={fontStyle(idea.font)}>
+              <p className="mt-2 text-sm whitespace-pre-wrap opacity-80" style={fontStyle(idea.font)}>
                 {idea.note}
               </p>
               <p className="mt-3 font-(family-name:--font-mono) text-[10px] tracking-widest uppercase opacity-60">

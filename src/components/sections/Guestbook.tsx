@@ -326,7 +326,6 @@ export function Guestbook({ entries }: GuestbookProps) {
                 required
                 maxLength={60}
                 className="w-full border-b border-(--color-paper-line) bg-transparent py-1.5 font-hand text-lg text-(--color-ink) outline-none focus:border-(--color-pen-blue)"
-                placeholder="Ahmad"
               />
             </div>
             <div>
@@ -339,7 +338,7 @@ export function Guestbook({ entries }: GuestbookProps) {
                 onChange={(e) => setNote(e.target.value)}
                 maxLength={140}
                 className="w-full border-b border-(--color-paper-line) bg-transparent py-1.5 font-hand text-lg text-(--color-ink) outline-none focus:border-(--color-pen-blue)"
-                placeholder="Loved the scrapbook vibe!"
+                placeholder="Loved the vibe"
               />
             </div>
           </div>

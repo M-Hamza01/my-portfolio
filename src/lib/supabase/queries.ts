@@ -64,6 +64,7 @@ export async function getFeaturedProjects(): Promise<ProjectData[]> {
       biggestMistake: row.biggest_mistake,
       proudOf: row.proud_of,
       improveToday: row.improve_today,
+      featured: row.featured,
     }));
   } catch {
     return FEATURED_PROJECTS;
@@ -95,6 +96,7 @@ export async function getAllProjects(): Promise<ProjectData[]> {
       biggestMistake: row.biggest_mistake,
       proudOf: row.proud_of,
       improveToday: row.improve_today,
+      featured: row.featured,
     }));
   } catch {
     return FEATURED_PROJECTS;
