@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, useMotionValue } from "framer-motion";
 import { Pencil, X } from "lucide-react";
 import { FontSelect } from "@/components/admin/FontSelect";
@@ -15,13 +15,26 @@ const MAX_SIZE = 420;
 interface FloatingStickyNoteProps {
   note: FloatingNoteData;
   isOwner: boolean;
+  /** Where this note's anchor section currently sits relative to
+   *  <main>, measured live by the parent layer. note.posX/posY are an
+   *  offset from this point, not raw page coordinates. */
+  anchorOffset: { x: number; y: number };
   onUpdate: (note: FloatingNoteData) => void;
   onDelete: (id: string) => void;
 }
 
-export function FloatingStickyNote({ note, isOwner, onUpdate, onDelete }: FloatingStickyNoteProps) {
-  const x = useMotionValue(note.posX);
-  const y = useMotionValue(note.posY);
+export function FloatingStickyNote({ note, isOwner, anchorOffset, onUpdate, onDelete }: FloatingStickyNoteProps) {
+  const x = useMotionValue(anchorOffset.x + note.posX);
+  const y = useMotionValue(anchorOffset.y + note.posY);
+
+  useEffect(() => {
+    x.set(anchorOffset.x + note.posX);
+    y.set(anchorOffset.y + note.posY);
+    // Only when the anchor itself moves (e.g. window resize) — not on
+    // every note.posX/posY change, since those already reflect the
+    // live drag position and re-setting would be redundant.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [anchorOffset.x, anchorOffset.y]);
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(note.text);
   const [color, setColor] = useState(note.color);
@@ -49,8 +62,10 @@ export function FloatingStickyNote({ note, isOwner, onUpdate, onDelete }: Floati
   async function handleDragEnd() {
     const newX = x.get();
     const newY = y.get();
-    onUpdate({ ...note, posX: newX, posY: newY });
-    await persist({ pos_x: newX, pos_y: newY });
+    const relX = newX - anchorOffset.x;
+    const relY = newY - anchorOffset.y;
+    onUpdate({ ...note, posX: relX, posY: relY });
+    await persist({ pos_x: relX, pos_y: relY });
   }
 
   function handleResizeStart(e: React.PointerEvent) {

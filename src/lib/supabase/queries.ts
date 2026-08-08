@@ -304,6 +304,7 @@ export interface FloatingNoteData {
   posY: number;
   width: number;
   height: number;
+  sectionId: string;
 }
 
 export async function getFloatingNotes(): Promise<FloatingNoteData[]> {
@@ -321,6 +322,7 @@ export async function getFloatingNotes(): Promise<FloatingNoteData[]> {
       posY: row.pos_y,
       width: row.width ?? 190,
       height: row.height ?? 170,
+      sectionId: row.section_id ?? "home",
     }));
   } catch {
     return [];
